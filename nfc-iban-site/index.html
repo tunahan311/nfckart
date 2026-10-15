@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>IBAN Bilgisi</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: #0f0f0f;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 390px;
+      background: #1c1c1e;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+
+    /* Üst renkli alan */
+    .card-header {
+      background: linear-gradient(145deg, #5e5ce6, #9b59f5);
+      padding: 44px 28px 56px;
+      text-align: center;
+      position: relative;
+    }
+
+    .card-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: #1c1c1e;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 2.5px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 auto 16px;
+    }
+
+    /* İsim + kopyalama butonu */
+    .name-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .icon-btn {
+      background: rgba(255,255,255,0.18);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s, background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.88);
+    }
+
+    .icon-btn.copied-state {
+      background: rgba(48, 209, 88, 0.35);
+    }
+
+    .icon-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: rgba(255,255,255,0.85);
+    }
+
+    /* Alt kısım */
+    .card-body {
+      padding: 36px 22px 28px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: #48484a;
+      margin-bottom: 10px;
+    }
+
+    .iban-box {
+      background: #2c2c2e;
+      border-radius: 16px;
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .iban-text-wrap {
+      flex: 1;
+    }
+
+    .iban-number {
+      font-size: 15px;
+      font-weight: 500;
+      color: #ebebf5;
+      letter-spacing: 1px;
+      word-break: break-all;
+      line-height: 1.6;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .currency-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .currency-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #30d158;
+      flex-shrink: 0;
+    }
+
+    .currency-text {
+      font-size: 12px;
+      color: #636366;
+      font-weight: 500;
+    }
+
+    /* IBAN kopyala butonu — koyu arka plan üstünde */
+    .iban-copy-btn {
+      background: #3a3a3c;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.12s, background 0.2s;
+    }
+
+    .iban-copy-btn:active {
+      transform: scale(0.88);
+    }
+
+    .iban-copy-btn.copied-state {
+      background: rgba(48, 209, 88, 0.25);
+    }
+
+    .iban-copy-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: #aeaeb2;
+    }
+
+    .iban-copy-btn.copied-state svg {
+      fill: #30d158;
+    }
+
+    /* Ana kopyala butonu */
+    .copy-btn {
+      width: 100%;
+      padding: 18px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #5e5ce6, #9b59f5);
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .copy-btn:active {
+      transform: scale(0.96);
+      opacity: 0.85;
+    }
+
+    .copy-btn.copied {
+      background: linear-gradient(135deg, #30d158, #25a244);
+    }
+
+    /* Hata */
+    .error-card {
+      text-align: center;
+      color: #636366;
+      font-size: 15px;
+      padding: 48px 24px;
+    }
+
+    .error-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card">
+    <div class="error-card">Yükleniyor...</div>
+  </div>
+
+  <script>
+    // SVG ikonlar
+    const copyIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+    </svg>`;
+
+    const checkIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#30d158"/>
+    </svg>`;
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      const card = document.getElementById('card');
+
+      function showError(msg) {
+        card.innerHTML = `<div class="error-card"><div class="error-icon">🔗</div><p>${msg}</p></div>`;
+      }
+
+      if (!id) { showError('Geçersiz bağlantı.'); return; }
+
+      let data;
+      try {
+        const res = await fetch('./data.json');
+        data = await res.json();
+      } catch {
+        showError('Veriler yüklenemedi.'); return;
+      }
+
+      const kisi = data[id];
+      if (!kisi) { showError('Kişi bulunamadı.'); return; }
+
+      const parcalar = kisi.ad.trim().split(' ');
+      const harfler = parcalar.length >= 2
+        ? parcalar[0][0] + parcalar[parcalar.length - 1][0]
+        : parcalar[0][0];
+
+      const ibanHam = kisi.iban.replace(/\s/g, '');
+      const ibanGosterim = ibanHam.match(/.{1,4}/g)?.join(' ') || ibanHam;
+
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="avatar">${e(harfler.toUpperCase())}</div>
+          <div class="name-row">
+            <div class="name">${e(kisi.ad)}</div>
+            <button class="icon-btn" id="nameBtn" onclick="kopyalaMetin('${e(kisi.ad)}', 'nameBtn')" title="İsmi kopyala">
+              ${copyIcon}
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section-label">IBAN</div>
+          <div class="iban-box">
+            <div class="iban-text-wrap">
+              <div class="iban-number">${e(ibanGosterim)}</div>
+              <div class="currency-row">
+                <div class="currency-dot"></div>
+                <span class="currency-text">Türk Lirası · TL</span>
+              </div>
+            </div>
+            <button class="iban-copy-btn" id="ibanIconBtn" onclick="kopyalaMetin('${e(ibanHam)}', 'ibanIconBtn')" title="IBAN kopyala">
+              ${copyIcon}
+            </button>
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="kopyalaMetin('${e(ibanHam)}', 'copyBtn')">
+            IBAN'ı Kopyala
+          </button>
+        </div>
+      `;
+    }
+
+    function kopyalaMetin(metin, btnId) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+
+      const isCheck = (id) => id === 'nameBtn' || id === 'ibanIconBtn';
+
+      // Clipboard API dene
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(metin).then(() => {
+          gosterKopyalandi(btn, btnId, isCheck(btnId));
+        }).catch(() => fallbackKopya(metin, btn, btnId, isCheck(btnId)));
+      } else {
+        fallbackKopya(metin, btn, btnId, isCheck(btnId));
+      }
+    }
+
+    function fallbackKopya(metin, btn, btnId, ikonMu) {
+      // iOS ve eski Android fallback
+      const ta = document.createElement('textarea');
+      ta.value = metin;
+      ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        gosterKopyalandi(btn, btnId, ikonMu);
+      } catch(err) {}
+      document.body.removeChild(ta);
+    }
+
+    function gosterKopyalandi(btn, btnId, ikonMu) {
+      if (navigator.vibrate) navigator.vibrate(40);
+
+      if (ikonMu) {
+        const checkIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#30d158"/></svg>`;
+        const copyIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
+        btn.innerHTML = checkIcon;
+        btn.classList.add('copied-state');
+        setTimeout(() => {
+          btn.innerHTML = copyIcon;
+          btn.classList.remove('copied-state');
+        }, 2000);
+      } else {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Kopyalandı!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = "IBAN'ı Kopyala";
+          btn.classList.remove('copied');
+        }, 2500);
+      }
+    }
+
+    function e(str) {
+      return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+
+    init();
+  </script>
+</body>
+</html>
